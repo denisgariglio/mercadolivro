@@ -1,0 +1,15 @@
+version: '3.3'
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: 'mercadolivro'
+      MYSQL_ROOT_PASSWORD: 'root'
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - /home/denis/Estudos/volume/mercadolivro-db:/var/lib/mysql
+volumes:
+  my-db-mercadolivro:
