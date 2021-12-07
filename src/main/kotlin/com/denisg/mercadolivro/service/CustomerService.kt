@@ -2,42 +2,43 @@ package com.denisg.mercadolivro.service
 
 import com.denisg.mercadolivro.controller.dto.CustomerDto
 import com.denisg.mercadolivro.model.CustomerModel
+import com.denisg.mercadolivro.repository.CustomerRepository
 import org.springframework.stereotype.Service
 
 @Service
-class CustomerService {
+class CustomerService(val customerRepository: CustomerRepository) {
 
     val customers = mutableListOf<CustomerModel>()
 
     fun getAll(name: String?): List<CustomerModel> {
         name?.let {
-            return customers.filter { it.name.contains(name, ignoreCase = true) }
+            return customerRepository.findByNameContaining(it) }
+
+        return customerRepository.findAll().toList()
+    }
+
+    fun getById(id: Int): CustomerModel {
+        return customerRepository.findById(id).get()
+    }
+
+    fun update(id: Int, customer: CustomerDto) {
+        if(!customerRepository.existsById(id)){
+            throw Exception()
         }
 
-        return customers
+        customerRepository.save(CustomerModel(id, customer.name, customer.email))
     }
 
-    fun getCustomer(id: String): CustomerModel {
-        return customers.filter { it.id == id }.first()
-    }
-
-    fun update(id: String, customer: CustomerDto) {
-        customers.filter { it.id == id }.first().let {
-            it.name = customer.name
-            it.email = customer.email
+    fun delete(id: Int) {
+        if(!customerRepository.existsById(id)){
+            throw Exception()
         }
-    }
 
-    fun delete(id: String, customer: CustomerDto) {
-        customers.removeIf { it.id == id}
+        customerRepository.deleteById(id)
 
     }
 
     fun create(customer: CustomerModel) {
-
-        var id = if (customers.isEmpty()) "1" else (customers.last().id!!.toInt()+1).toString()
-
-        customer.id = id
-        customers.add(CustomerModel(id, customer.name, customer.email))
+        customerRepository.save(customer)
     }
 }
